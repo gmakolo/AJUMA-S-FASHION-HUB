@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AJUMA Fashion Designer</title>
+</head>
+<body>
+
+    <h1>AJUMA Fashion Designer</h1>
+
+    {% for dress in dresses %}
+        <div>
+            <h2>{{ dress.name }}</h2>
+            <img src="{{ url_for('static', filename='images/' + dress.image) }}" width="200">
+            <br>
+            <button>Order Now</button>
+        </div>
+    {% endfor %}
+
+</body>
+</html>
