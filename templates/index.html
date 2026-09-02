@@ -2,19 +2,154 @@
 <html>
 <head>
     <title>AJUMA Fashion Designer</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f5f5f5;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: black;
+            color: white;
+            padding: 15px 30px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        nav a {
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                        url("https://via.placeholder.com/1200x400") center/cover;
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero h1 {
+            font-size: 40px;
+        }
+
+        /* DRESS GRID */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 15px;
+            text-align: center;
+        }
+
+        button {
+            background: black;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* SECTIONS */
+        .section {
+            padding: 40px 20px;
+            text-align: center;
+            background: white;
+            margin-top: 20px;
+        }
+
+        footer {
+            background: black;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
+
 <body>
 
-    <h1>AJUMA Fashion Designer</h1>
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">AJUMA</div>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Dresses</a>
+        <a href="#">Contact</a>
+    </nav>
+</header>
 
+<!-- HERO -->
+<div class="hero">
+    <h1>Elegant Styles, Perfect Fit</h1>
+    <p>Custom-made dresses for every occasion</p>
+</div>
+
+<!-- DRESSES -->
+<div class="container">
     {% for dress in dresses %}
-        <div>
-            <h2>{{ dress.name }}</h2>
-            <img src="{{ url_for('static', filename='images/' + dress.image) }}" width="200">
-            <br>
-            <button>Order Now</button>
+    <div class="card">
+        <img src="https://via.placeholder.com/300x250">
+        <div class="card-body">
+            <h3>{{ dress.name }}</h3>
+         <a href="/order/{{ dress.id }}">
+    <button>Order Now</button>
+</a>
         </div>
+    </div>
     {% endfor %}
+</div>
+
+<!-- ABOUT -->
+<div class="section">
+    <h2>About AJUMA</h2>
+    <p>We design beautiful, custom-made dresses tailored to your style.</p>
+</div>
+
+<!-- CONTACT -->
+<div class="section">
+    <h2>Contact</h2>
+    <p>Call/WhatsApp: 08155604988</p>
+</div>
+
+<footer>
+    © 2026 AJUMA Fashion Designer
+</footer>
 
 </body>
 </html>

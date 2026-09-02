@@ -1,14 +1,80 @@
-from flask import Flask, render_template
+print("Creating database...")
+init_db()
+print("Database ready")
+
+from flask import Flask, render_template, request
+import sqlite3
 
 app = Flask(__name__)
+
+# Create DB + table
+def init_db():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            dress TEXT,
+            name TEXT,
+            phone TEXT,
+            address TEXT,
+            measurements TEXT,
+            description TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
 
 @app.route("/")
 def home():
     dresses = [
-        {"name": "Red Gown", "image": "dress1.jpg"},
-        {"name": "Blue Dress", "image": "dress2.jpg"},
+        {"name": "Red Gown", "image": "dress1.jpg", "id": "red-gown"},
+        {"name": "Blue Dress", "image": "dress2.jpg", "id": "blue-dress"},
     ]
     return render_template("index.html", dresses=dresses)
+
+
+@app.route("/order/<dress_id>", methods=["GET", "POST"])
+def order(dress_id):
+    if request.method == "POST":
+        name = request.form.get("name")
+        phone = request.form.get("phone")
+        address = request.form.get("address")
+        measurements = request.form.get("measurements")
+        description = request.form.get("description")
+       
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        cursor.execute(
+    "INSERT INTO orders (dress, name, phone, address, measurements, description) VALUES (?, ?, ?, ?, ?, ?)",
+    (dress_id, name, phone, address, measurements, description)
+)
+
+
+        conn.commit()
+        conn.close()
+
+        return render_template("success.html", name=name)
+
+    return render_template("order.html", dress_name=dress_id)
+
+
+# ✅ KEEP ONLY ONE ADMIN ROUTE (clean version)
+@app.route("/admin")
+def admin():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM orders")
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return render_template("admin.html", orders=data)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
