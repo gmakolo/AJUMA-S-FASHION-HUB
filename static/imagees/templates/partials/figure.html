@@ -1,0 +1,25 @@
+{{/*
+  figure — a photograph in its frame, or a tinted stand-in while there is none.
+  The tint is the average colour of the image itself, so the page holds its
+  composition before anything has loaded.
+  dict: Img, Alt, Class, optional Eager.
+*/}}
+{{define "figure"}}
+{{- $img := .Img -}}
+<div class="frame {{.Class}}" style="--tint: {{tint $img.Tint}}">
+  {{- if $img.Src}}
+  <img class="frame__img" src="{{$img.Src}}"
+       alt="{{if $img.Alt}}{{$img.Alt}}{{else}}{{.Alt}}{{end}}"
+       {{if $img.W}}width="{{$img.W}}" height="{{$img.H}}"{{end}}
+       {{if .Eager}}loading="eager" fetchpriority="high"{{else}}loading="lazy"{{end}}
+       decoding="async">
+  {{- else}}
+  <span class="frame__blank" aria-hidden="true">
+    <svg viewBox="0 0 24 30" role="presentation" focusable="false">
+      <path d="M9 2h6l2 5-3 2 4 19H6l4-19-3-2z" fill="none" stroke="currentColor" stroke-width="0.7"/>
+    </svg>
+    <em>photograph to come</em>
+  </span>
+  {{- end}}
+</div>
+{{end}}

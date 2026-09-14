@@ -1,0 +1,28 @@
+{{define "main"}}
+<div class="signin">
+  <div class="signin__card">
+    <p class="eyebrow">{{.Settings.BrandName}}</p>
+    <h1 class="signin__title">Sign in to the studio</h1>
+    <p class="signin__sub">
+      This is where dresses, prices and the WhatsApp number are set. Only the owner needs it.
+    </p>
+
+    {{with .Error}}<p class="flash flash--error" role="alert">{{.}}</p>{{end}}
+
+    <form method="post" action="/admin/login" class="signin__form">
+      <input type="hidden" name="next" value="{{.Next}}">
+      <label class="field">
+        <span class="field__label">Password</span>
+        <input type="password" name="password" autocomplete="current-password"
+               required autofocus maxlength="200">
+      </label>
+      <button class="btn btn--ink btn--full" type="submit">Sign in</button>
+    </form>
+
+    <p class="signin__hint">
+      Started with <code>go run .</code>? The password was printed in the terminal.
+    </p>
+    <p class="signin__back"><a href="/">&larr; Back to the shop</a></p>
+  </div>
+</div>
+{{end}}

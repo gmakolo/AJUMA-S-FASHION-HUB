@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ajuma Fashion Hub">
+  <rect width="64" height="64" rx="14" fill="#191512"/>
+  <circle cx="32" cy="32" r="24" fill="none" stroke="#b1904e" stroke-width="1.4" opacity=".75"/>
+  <!-- an A drawn as two seams meeting, with the crossbar as a stitch line -->
+  <path d="M20 46 L32 17 L44 46" fill="none" stroke="#fbf8f4" stroke-width="3.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M25.4 36.6 H38.6" fill="none" stroke="#a8462a" stroke-width="3.4" stroke-linecap="round"/>
+</svg>

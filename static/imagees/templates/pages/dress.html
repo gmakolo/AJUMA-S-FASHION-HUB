@@ -1,0 +1,180 @@
+{{define "head"}}
+  {{if .Dress.HasImage}}<meta property="og:image" content="{{.Settings.AbsURL .Dress.Cover.Src}}">{{end}}
+  <meta property="og:type" content="product">
+  <meta property="product:price:amount" content="{{amount .Dress.PriceMinor}}">
+  {{if .Settings.BaseURL}}<link rel="canonical" href="{{.Settings.AbsURL .Dress.Path}}">{{end}}
+{{end}}
+
+{{define "main"}}
+{{- $d := .Dress -}}
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <div class="shell">
+    <a href="/">Home</a><span aria-hidden="true">/</span>
+    <a href="/#lookbook">Lookbook</a>
+    {{if $d.Category}}<span aria-hidden="true">/</span><a href="{{$.CategoryURL $d.Category ""}}">{{$d.Category}}</a>{{end}}
+    <span aria-hidden="true">/</span><span aria-current="page">{{$d.Name}}</span>
+  </div>
+</nav>
+
+<article class="piece">
+  <div class="shell piece__grid">
+
+    <!-- ── gallery: pure CSS, no script needed ── -->
+    <div class="gallery">
+      {{if gt (len $d.Images) 1}}
+        {{range $i, $img := $d.Images}}
+        <input class="sr" type="radio" name="shot" id="shot-{{$i}}" {{if eq $i 0}}checked{{end}}>
+        {{end}}
+      {{end}}
+
+      <div class="gallery__stage">
+        {{if $d.HasImage}}
+          {{range $i, $img := $d.Images}}
+          <figure class="shot">
+            {{template "figure" (dict "Img" $img "Alt" $.Dress.Name "Class" "frame--tall" "Eager" (eq $i 0))}}
+          </figure>
+          {{end}}
+        {{else}}
+          <figure class="shot">
+            {{template "figure" (dict "Img" $d.Cover "Alt" $d.Name "Class" "frame--tall")}}
+          </figure>
+        {{end}}
+      </div>
+
+      {{if gt (len $d.Images) 1}}
+      <div class="gallery__thumbs">
+        {{range $i, $img := $d.Images}}
+        <label for="shot-{{$i}}" title="View photograph {{add $i 1}}">
+          <img src="{{$img.Src}}" alt="{{$.Dress.Name}} &mdash; photograph {{add $i 1}}" loading="lazy" decoding="async">
+        </label>
+        {{end}}
+      </div>
+      {{end}}
+    </div>
+
+    <!-- ── the piece itself ── -->
+    <div class="piece__detail">
+      <p class="eyebrow">
+        {{with $d.Category}}{{.}} &middot; {{end}}Ref {{$d.Ref}}
+      </p>
+      <h1 class="piece__name">{{$d.Name}}</h1>
+      <p class="piece__price">{{.Price}}</p>
+
+      {{if $d.SoldOut}}
+      <p class="notice notice--sold">
+        <strong>Sold out.</strong> This one has gone, but it can usually be made again &mdash;
+        send the message below and ask.
+      </p>
+      {{end}}
+
+      <dl class="spec">
+        {{with $d.Fabric}}<div><dt>Fabric</dt><dd>{{.}}</dd></div>{{end}}
+        {{if $d.Sizes}}<div><dt>Sizes</dt><dd>{{join $d.Sizes "  ·  "}}</dd></div>{{end}}
+        {{with $.Settings.DeliveryNote}}<div><dt>Delivery</dt><dd>{{.}}</dd></div>{{end}}
+      </dl>
+
+      {{with $d.Description}}
+      <div class="prose">
+        {{range paragraphs .}}<p>{{.}}</p>{{end}}
+      </div>
+      {{end}}
+
+      {{/* Two shells, one body. On the live shop the panel is a form the
+           server answers; exported to a static host it is a plain block whose
+           button is a link straight to WhatsApp. */}}
+      {{if .Static}}
+      <div class="order" data-order="{{.OrderData}}">{{template "orderBody" .}}</div>
+      {{else}}
+      <form class="order" method="post" action="{{$d.Path}}/order" data-order="{{.OrderData}}">{{template "orderBody" .}}</form>
+      {{end}}
+    </div>
+  </div>
+</article>
+
+{{if .Related}}
+<section class="lookbook lookbook--tight">
+  <div class="shell">
+    <header class="section__head">
+      <div>
+        <p class="eyebrow">Also in the lookbook</p>
+        <h2 class="section__title">You may like these</h2>
+      </div>
+      <a class="card__more" href="/#lookbook">See everything<span aria-hidden="true"> &rarr;</span></a>
+    </header>
+    <div class="grid grid--three">
+      {{range .Related}}
+        {{template "card" (dict "D" . "Cur" $.Currency "Ordering" $.Ordering "Order" ($.OrderHref .) "Static" $.Static)}}
+      {{end}}
+    </div>
+  </div>
+</section>
+{{end}}
+
+{{end}}
+
+{{/* orderBody is the inside of the order panel. It is kept apart from the two
+     shells above so that neither has to repeat it, and so the difference
+     between the live shop and an exported one stays down to three lines. */}}
+{{define "orderBody"}}
+{{- $d := .Dress -}}
+        <h2 class="order__title">Order this piece</h2>
+
+        {{/* Exported, these choices reach WhatsApp only if the script is there
+             to fold them into the link, so they wait for it rather than sit on
+             the page promising something they cannot do. */}}
+        <div class="order__choices" data-choices{{if .Static}} hidden{{end}}>
+          {{if $d.Sizes}}
+          <fieldset class="order__field">
+            <legend class="order__label">Size</legend>
+            <div class="pills">
+              {{range $i, $s := $d.Sizes}}
+              <label class="pill">
+                <input type="radio" name="size" value="{{$s}}" {{if eq $i 0}}checked{{end}}>
+                <span>{{$s}}</span>
+              </label>
+              {{end}}
+            </div>
+          </fieldset>
+          {{end}}
+
+          <label class="order__field order__field--narrow">
+            <span class="order__label">Quantity</span>
+            <select name="qty">
+              {{range seq .MaxQty}}<option value="{{.}}">{{.}}</option>{{end}}
+            </select>
+          </label>
+
+          <label class="order__field">
+            <span class="order__label">Anything to add? <em>optional</em></span>
+            <textarea name="notes" rows="2" maxlength="280"
+                      placeholder="Colour, sleeve length, the date you need it&hellip;"></textarea>
+          </label>
+        </div>
+
+        <section class="wa" aria-labelledby="wa-head">
+          <p class="wa__head" id="wa-head">
+            <span class="wa__dot" aria-hidden="true"></span>The message you will send
+          </p>
+          <pre class="wa__bubble" id="wa-preview">{{.Preview}}</pre>
+          <p class="wa__foot">
+            WhatsApp opens with this already written &mdash; you only press send. Nothing is
+            charged here; payment and delivery are settled with the maker in the chat.
+          </p>
+        </section>
+
+        {{if .Ordering}}
+          {{if .Static}}
+          <a class="btn btn--wa btn--lg btn--full" href="{{.OrderURL}}"
+             target="_blank" rel="noopener noreferrer" data-order-link>
+            <span class="btn__wa" aria-hidden="true"></span>Order on WhatsApp
+          </a>
+          {{else}}
+          <button class="btn btn--wa btn--lg btn--full" type="submit">
+            <span class="btn__wa" aria-hidden="true"></span>Order on WhatsApp
+          </button>
+          {{end}}
+        {{else}}
+        <p class="notice">Ordering is switched off until the shop adds its WhatsApp number.</p>
+        {{end}}
+{{end}}

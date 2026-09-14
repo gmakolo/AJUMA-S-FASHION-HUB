@@ -1,0 +1,165 @@
+{{define "main"}}
+{{- $d := .Dress -}}
+<header class="page__head">
+  <div>
+    <p class="eyebrow"><a href="/admin/dresses">Lookbook</a> &rsaquo; {{if .IsNew}}New{{else}}{{$d.Ref}}{{end}}</p>
+    <h1 class="page__title">{{if .IsNew}}Add a dress{{else}}{{$d.Name}}{{end}}</h1>
+  </div>
+  {{if not .IsNew}}
+  <a class="btn btn--quiet" href="{{$d.Path}}" target="_blank" rel="noopener">View in the shop &nearr;</a>
+  {{end}}
+</header>
+
+{{if .Errors}}
+<div class="flash flash--error" role="alert">
+  <p><strong>Nothing was saved.</strong> Please look at:</p>
+  <ul>{{range .Errors}}<li>{{.}}</li>{{end}}</ul>
+</div>
+{{end}}
+
+<form class="sheet" method="post" enctype="multipart/form-data"
+      action="{{if .IsNew}}/admin/dresses/new{{else}}/admin/dresses/{{$d.ID}}{{end}}">
+  <input type="hidden" name="csrf" value="{{.CSRF}}">
+
+  <section class="sheet__block">
+    <div class="sheet__aside">
+      <h2>The piece</h2>
+      <p>The name, the price and the description are what a buyer sees on the front page.</p>
+    </div>
+    <div class="sheet__fields">
+      <label class="field">
+        <span class="field__label">Name</span>
+        <input type="text" name="name" value="{{$d.Name}}" required maxlength="90"
+               placeholder="Adaeze Wrap Dress" autocomplete="off">
+      </label>
+
+      <div class="field__pair">
+        <label class="field">
+          <span class="field__label">Price <em>in {{.Currency}}</em></span>
+          <input type="text" name="price" value="{{.PriceText}}" required inputmode="decimal"
+                 placeholder="28500" autocomplete="off">
+          <span class="field__hint">Digits only, or with kobo: 28500.50</span>
+        </label>
+        <label class="field">
+          <span class="field__label">Category</span>
+          <input type="text" name="category" value="{{$d.Category}}" maxlength="40"
+                 placeholder="Wrap, Gown, Kaftan&hellip;" autocomplete="off" list="known-categories">
+          <span class="field__hint">Groups the dress under a filter on the front page.</span>
+        </label>
+      </div>
+      {{if .Categories}}
+      <datalist id="known-categories">
+        {{range .Categories}}<option value="{{.}}"></option>{{end}}
+      </datalist>
+      {{end}}
+
+      <label class="field">
+        <span class="field__label">Description</span>
+        <textarea name="description" rows="5" required maxlength="1500"
+                  placeholder="What it is made of, how it fits, what makes it worth having.">{{$d.Description}}</textarea>
+        <span class="field__hint">A blank line starts a new paragraph. The first 116 characters appear on the card.</span>
+      </label>
+
+      <div class="field__pair">
+        <label class="field">
+          <span class="field__label">Fabric</span>
+          <input type="text" name="fabric" value="{{$d.Fabric}}" maxlength="90"
+                 placeholder="Hand-picked Ankara cotton" autocomplete="off">
+        </label>
+        <label class="field">
+          <span class="field__label">Sizes</span>
+          <input type="text" name="sizes" value="{{.SizesText}}" maxlength="120"
+                 placeholder="S, M, L, XL" autocomplete="off">
+          <span class="field__hint">Separated by commas. These become the buyer&rsquo;s size buttons.</span>
+        </label>
+      </div>
+
+      <div class="field__checks">
+        <label class="check">
+          <input type="checkbox" name="featured" value="1" {{if $d.Featured}}checked{{end}}>
+          <span><strong>House pick</strong> &mdash; may lead the front page</span>
+        </label>
+        <label class="check">
+          <input type="checkbox" name="sold_out" value="1" {{if $d.SoldOut}}checked{{end}}>
+          <span><strong>Sold out</strong> &mdash; still shown, order button becomes a request to remake</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet__block">
+    <div class="sheet__aside">
+      <h2>Photographs</h2>
+      <p>
+        Up to {{.MaxImages}}. The first one is the cover. Every picture is re-saved as a JPEG at
+        web size, so a photograph straight off a phone is fine.
+      </p>
+    </div>
+    <div class="sheet__fields">
+      <label class="drop">
+        <input type="file" name="photos" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+        <span class="drop__face">
+          <span class="drop__ico" aria-hidden="true">&#43;</span>
+          <span class="drop__text"><strong>Choose photographs</strong><br>JPEG, PNG or WebP &middot; up to 8 MB each</span>
+        </span>
+      </label>
+      <p class="field__hint">Turn the dress to the light and fill the frame. Tall pictures crop best.</p>
+    </div>
+  </section>
+
+  <div class="sheet__save">
+    <button class="btn btn--ink btn--lg" type="submit">
+      {{if .IsNew}}Add to the lookbook{{else}}Save changes{{end}}
+    </button>
+    <a class="btn btn--quiet" href="/admin/dresses">Cancel</a>
+  </div>
+</form>
+
+{{if $d.Images}}
+<section class="shots">
+  <h2 class="shots__title">Photographs on this dress</h2>
+  <ol class="shots__list">
+    {{range $i, $img := $d.Images}}
+    <li class="shots__item{{if eq $i 0}} is-cover{{end}}">
+      {{template "figure" (dict "Img" $img "Alt" $.Dress.Name "Class" "frame--thumb")}}
+      <p class="shots__label">{{if eq $i 0}}Cover{{else}}Photograph {{add $i 1}}{{end}}</p>
+      <div class="shots__acts">
+        {{if ne $i 0}}
+        <form method="post" action="/admin/dresses/{{$.Dress.ID}}/photo">
+          <input type="hidden" name="csrf" value="{{$.CSRF}}">
+          <input type="hidden" name="src" value="{{$img.Src}}">
+          <input type="hidden" name="action" value="primary">
+          <button class="btn btn--quiet btn--sm" type="submit">Make cover</button>
+        </form>
+        {{end}}
+        <form method="post" action="/admin/dresses/{{$.Dress.ID}}/photo">
+          <input type="hidden" name="csrf" value="{{$.CSRF}}">
+          <input type="hidden" name="src" value="{{$img.Src}}">
+          <input type="hidden" name="action" value="remove">
+          <button class="btn btn--danger btn--sm" type="submit">Remove</button>
+        </form>
+      </div>
+    </li>
+    {{end}}
+  </ol>
+</section>
+{{end}}
+
+{{if not .IsNew}}
+<section class="panel panel--quiet">
+  <div>
+    <h2>Take this dress down</h2>
+    <p>It disappears from the shop, and its photographs are deleted. This cannot be undone.</p>
+  </div>
+  <details class="danger">
+    <summary class="btn btn--quiet">Delete {{$d.Name}}</summary>
+    <div class="danger__body">
+      <form method="post" action="/admin/dresses/{{$d.ID}}/delete">
+        <input type="hidden" name="csrf" value="{{.CSRF}}">
+        <button class="btn btn--danger" type="submit">Yes, delete it for good</button>
+      </form>
+    </div>
+  </details>
+</section>
+{{end}}
+{{end}}

@@ -1,0 +1,97 @@
+{{define "main"}}
+<header class="page__head">
+  <div>
+    <p class="eyebrow">The shop</p>
+    <h1 class="page__title">Lookbook</h1>
+  </div>
+  <a class="btn btn--ink" href="/admin/dresses/new">Add a dress</a>
+</header>
+
+<dl class="tally">
+  <div><dt>Pieces</dt><dd>{{len .Dresses}}</dd></div>
+  <div><dt>On sale</dt><dd>{{.LiveCount}}</dd></div>
+  <div><dt>Sold out</dt><dd>{{.SoldOutCount}}</dd></div>
+  <div class="{{if .NoPhotoCount}}tally--flag{{end}}"><dt>No photograph</dt><dd>{{.NoPhotoCount}}</dd></div>
+</dl>
+
+{{if .CanSeed}}
+<section class="panel panel--invite">
+  <div>
+    <h2>Start with a sample collection</h2>
+    <p>
+      Six dresses with drawn illustrations, prices and descriptions, so you can see the finished
+      shop before your own photographs are ready. Edit or delete them at any time.
+    </p>
+  </div>
+  <form method="post" action="/admin/sample">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <button class="btn btn--ink" type="submit">Load the samples</button>
+  </form>
+</section>
+{{end}}
+
+{{if .Dresses}}
+<ol class="rack">
+  {{range $i, $d := .Dresses}}
+  <li class="rack__row{{if $d.SoldOut}} is-sold{{end}}">
+    <a class="rack__thumb" href="/admin/dresses/{{$d.ID}}">
+      {{template "figure" (dict "Img" $d.Cover "Alt" $d.Name "Class" "frame--thumb")}}
+    </a>
+
+    <div class="rack__main">
+      <p class="rack__name">
+        <a href="/admin/dresses/{{$d.ID}}">{{$d.Name}}</a>
+        {{if $d.Featured}}<span class="tag tag--gold">House pick</span>{{end}}
+        {{if $d.SoldOut}}<span class="tag tag--sold">Sold out</span>{{end}}
+        {{if not $d.HasImage}}<span class="tag tag--warn">No photograph</span>{{end}}
+      </p>
+      <p class="rack__meta">
+        {{$d.Ref}}
+        {{- with $d.Category}} &middot; {{.}}{{end}}
+        {{- if $d.Sizes}} &middot; {{join $d.Sizes " / "}}{{end}}
+        {{- if $d.Images}} &middot; {{len $d.Images}} photograph{{if ne (len $d.Images) 1}}s{{end}}{{end}}
+        &middot; edited {{ago $d.UpdatedAt}}
+      </p>
+    </div>
+
+    <p class="rack__price">{{money $.Currency $d.PriceMinor}}</p>
+
+    <div class="rack__acts">
+      <form method="post" action="/admin/dresses/{{$d.ID}}/move" class="rack__move">
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <input type="hidden" name="dir" value="up">
+        <button class="icon" type="submit" title="Move up" {{if eq $i 0}}disabled{{end}}
+                aria-label="Move {{$d.Name}} up">&uarr;</button>
+      </form>
+      <form method="post" action="/admin/dresses/{{$d.ID}}/move" class="rack__move">
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <input type="hidden" name="dir" value="down">
+        <button class="icon" type="submit" title="Move down"
+                {{if eq $i (add (len $.Dresses) -1)}}disabled{{end}}
+                aria-label="Move {{$d.Name}} down">&darr;</button>
+      </form>
+
+      <a class="btn btn--quiet btn--sm" href="/admin/dresses/{{$d.ID}}">Edit</a>
+      <a class="btn btn--quiet btn--sm" href="{{$d.Path}}" target="_blank" rel="noopener">View</a>
+
+      <details class="danger">
+        <summary class="btn btn--quiet btn--sm">Delete</summary>
+        <div class="danger__body">
+          <p>Take <strong>{{$d.Name}}</strong> down for good? Its photographs are deleted too.</p>
+          <form method="post" action="/admin/dresses/{{$d.ID}}/delete">
+            <input type="hidden" name="csrf" value="{{$.CSRF}}">
+            <button class="btn btn--danger btn--sm" type="submit">Yes, delete it</button>
+          </form>
+        </div>
+      </details>
+    </div>
+  </li>
+  {{end}}
+</ol>
+{{else}}
+<p class="empty">
+  Nothing here yet. <a href="/admin/dresses/new">Add your first dress</a> &mdash; a name, a price and
+  one photograph is enough to begin.
+</p>
+{{end}}
+{{end}}

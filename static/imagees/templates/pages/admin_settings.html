@@ -1,0 +1,213 @@
+{{define "main"}}
+<header class="page__head">
+  <div>
+    <p class="eyebrow">The shop</p>
+    <h1 class="page__title">Settings</h1>
+  </div>
+</header>
+
+{{if .Errors}}
+<div class="flash flash--error" role="alert">
+  <p><strong>Nothing was saved.</strong> Please look at:</p>
+  <ul>{{range .Errors}}<li>{{.}}</li>{{end}}</ul>
+</div>
+{{end}}
+
+<form class="sheet" method="post" action="/admin/settings" data-order="{{.OrderData}}">
+  <input type="hidden" name="csrf" value="{{.CSRF}}">
+
+  <!-- ─────────── WhatsApp: the whole point of the shop ─────────── -->
+  <section class="sheet__block sheet__block--lead">
+    <div class="sheet__aside">
+      <h2>WhatsApp number</h2>
+      <p>
+        Every order button opens a chat with this number, with the message already written.
+        Without it, the buttons stay switched off.
+      </p>
+    </div>
+    <div class="sheet__fields">
+      <label class="field field--wa">
+        <span class="field__label">Your number, country code first</span>
+        <span class="field__wrap">
+          <span class="field__prefix" aria-hidden="true">+</span>
+          <input type="text" name="whatsapp" value="{{.Set.WhatsApp}}" inputmode="tel"
+                 placeholder="2348155604988" autocomplete="off" maxlength="20">
+        </span>
+        <span class="field__hint">
+          Digits only. A Nigerian number begins 234 and drops the leading 0 &mdash;
+          0815 560 4988 becomes 2348155604988.
+        </span>
+      </label>
+
+      {{if .Set.WhatsApp}}
+      <p class="status status--on">
+        <span aria-hidden="true">&check;</span>
+        Ordering is live &mdash; buttons open a chat with <strong>{{.NumberDisplay}}</strong>.
+        <a href="{{.ChatURL}}" target="_blank" rel="noopener noreferrer">Send yourself a test message</a>
+      </p>
+      {{else}}
+      <p class="status status--off">
+        <span aria-hidden="true">!</span>
+        No number yet, so every order button is switched off.
+      </p>
+      {{end}}
+    </div>
+  </section>
+
+  <!-- ─────────── The order message ─────────── -->
+  <section class="sheet__block">
+    <div class="sheet__aside">
+      <h2>The order message</h2>
+      <p>
+        What a buyer sends you. Words in braces are filled in for the dress they are looking at.
+      </p>
+      <details class="tokens">
+        <summary>All the words you can use</summary>
+        <dl>
+          {{range .Placeholders}}<div><dt><code>{{.Token}}</code></dt><dd>{{.Meaning}}</dd></div>{{end}}
+        </dl>
+      </details>
+    </div>
+    <div class="sheet__fields">
+      <label class="field">
+        <span class="field__label">Message template</span>
+        <textarea name="message_template" id="message-template" rows="12" maxlength="1200"
+                  spellcheck="false">{{.Set.MessageTemplate}}</textarea>
+        <span class="field__hint">Leave it empty to go back to the wording the shop came with.</span>
+      </label>
+
+      <section class="wa wa--admin" aria-labelledby="wa-head">
+        <p class="wa__head" id="wa-head">
+          <span class="wa__dot" aria-hidden="true"></span>
+          Preview <em>&mdash; using {{.PreviewOf}}</em>
+        </p>
+        <pre class="wa__bubble" id="wa-preview">{{.Preview}}</pre>
+      </section>
+
+      <p class="note note--wa">
+        <strong>About the photograph.</strong> A WhatsApp link can only carry text, so the message
+        cannot hold the picture itself. What it carries instead is <code>{{"{image}"}}</code> &mdash;
+        the web address of the photograph &mdash; and WhatsApp turns that into a picture preview in
+        the chat. For it to work, the shop must be reachable on the internet and the address below
+        must be filled in.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─────────── The shop itself ─────────── -->
+  <section class="sheet__block">
+    <div class="sheet__aside">
+      <h2>The shop</h2>
+      <p>The name at the top of every page, the line under it, and the paragraphs on the front page.</p>
+    </div>
+    <div class="sheet__fields">
+      <label class="field">
+        <span class="field__label">Shop name</span>
+        <input type="text" name="brand_name" value="{{.Set.BrandName}}" required maxlength="60">
+      </label>
+      <label class="field">
+        <span class="field__label">Tagline</span>
+        <input type="text" name="tagline" value="{{.Set.Tagline}}" maxlength="160"
+               placeholder="Dresses cut, sewn and finished by hand">
+        <span class="field__hint">This is the headline across the front page.</span>
+      </label>
+      <label class="field">
+        <span class="field__label">About the atelier</span>
+        <textarea name="story" rows="6" maxlength="1200"
+                  placeholder="Who makes the dresses, how, and why someone should buy one.">{{.Set.Story}}</textarea>
+        <span class="field__hint">A blank line starts a new paragraph.</span>
+      </label>
+      <label class="field">
+        <span class="field__label">Announcement <em>optional</em></span>
+        <input type="text" name="announcement" value="{{.Set.Announcement}}" maxlength="160"
+               placeholder="Free delivery in Abuja this month">
+        <span class="field__hint">Shown in a ribbon above everything. Clear it to remove the ribbon.</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- ─────────── Public address ─────────── -->
+  <section class="sheet__block">
+    <div class="sheet__aside">
+      <h2>Web address</h2>
+      <p>Where this shop lives on the internet. Needed for the photograph preview inside WhatsApp.</p>
+    </div>
+    <div class="sheet__fields">
+      <label class="field">
+        <span class="field__label">Public address</span>
+        <input type="url" name="base_url" value="{{.Set.BaseURL}}"
+               placeholder="https://ajumafashionhub.com" autocomplete="off" maxlength="200">
+        <span class="field__hint">
+          With <code>https://</code> and no trailing slash. Leave it empty while you are only
+          running the shop on your own machine.
+        </span>
+      </label>
+      {{if not .Set.BaseURL}}
+      <p class="status status--off">
+        <span aria-hidden="true">!</span>
+        Until this is set, order messages carry the dress name and price but no picture preview.
+      </p>
+      {{end}}
+    </div>
+  </section>
+
+  <!-- ─────────── Money, delivery, contact ─────────── -->
+  <section class="sheet__block">
+    <div class="sheet__aside">
+      <h2>Prices &amp; delivery</h2>
+      <p>The sign in front of every price, and the line buyers see about getting the dress to them.</p>
+    </div>
+    <div class="sheet__fields">
+      <div class="field__pair">
+        <label class="field field--tiny">
+          <span class="field__label">Currency sign</span>
+          <input type="text" name="currency_symbol" value="{{.Set.CurrencySymbol}}" maxlength="4"
+                 placeholder="&#8358;">
+        </label>
+        <label class="field">
+          <span class="field__label">Where you are</span>
+          <input type="text" name="location" value="{{.Set.Location}}" maxlength="80"
+                 placeholder="Abuja, Nigeria">
+        </label>
+      </div>
+      <label class="field">
+        <span class="field__label">Delivery note</span>
+        <input type="text" name="delivery_note" value="{{.Set.DeliveryNote}}" maxlength="200"
+               placeholder="Delivery nationwide, 2–5 days after the dress is finished">
+      </label>
+    </div>
+  </section>
+
+  <section class="sheet__block">
+    <div class="sheet__aside">
+      <h2>Elsewhere</h2>
+      <p>Links in the footer. A handle or a pasted profile address both work.</p>
+    </div>
+    <div class="sheet__fields">
+      <div class="field__pair">
+        <label class="field">
+          <span class="field__label">Email</span>
+          <input type="email" name="email" value="{{.Set.Email}}" maxlength="120"
+                 placeholder="hello@ajumafashionhub.com">
+        </label>
+        <label class="field">
+          <span class="field__label">Instagram</span>
+          <input type="text" name="instagram" value="{{.Set.Instagram}}" maxlength="120"
+                 placeholder="@ajumafashionhub">
+        </label>
+      </div>
+      <label class="field field--half">
+        <span class="field__label">TikTok</span>
+        <input type="text" name="tiktok" value="{{.Set.TikTok}}" maxlength="120"
+               placeholder="@ajumafashionhub">
+      </label>
+    </div>
+  </section>
+
+  <div class="sheet__save">
+    <button class="btn btn--ink btn--lg" type="submit">Save settings</button>
+    <a class="btn btn--quiet" href="/admin/dresses">Back to the lookbook</a>
+    {{if not .Set.UpdatedAt.IsZero}}<p class="sheet__stamp">Last saved {{ago .Set.UpdatedAt}}</p>{{end}}
+  </div>
+</form>
+{{end}}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+
+  <title>{{.Title}} &middot; studio</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link nonce="{{.Nonce}}" rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  {{block "head" .}}{{end}}
+</head>
+
+<body class="studio{{if not .SignedIn}} studio--bare{{end}}">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="studio__bar">
+    <div class="studio__bar-inner">
+      <a class="studio__brand" href="{{if .SignedIn}}/admin/dresses{{else}}/{{end}}">
+        <span class="studio__mark" aria-hidden="true">A</span>
+        <span>
+          <span class="studio__name">{{.Settings.BrandName}}</span>
+          <span class="studio__sub">Studio</span>
+        </span>
+      </a>
+
+      <div class="studio__bar-actions">
+        <a href="/" target="_blank" rel="noopener">View the shop &nearr;</a>
+        {{if .SignedIn}}
+        <form method="post" action="/admin/logout">
+          <input type="hidden" name="csrf" value="{{.CSRF}}">
+          <button class="btn btn--ghost btn--sm" type="submit">Sign out</button>
+        </form>
+        {{end}}
+      </div>
+    </div>
+  </header>
+
+  <div class="studio__frame">
+    {{if .SignedIn}}
+    <nav class="studio__nav" aria-label="Studio">
+      <a href="/admin/dresses" {{if eq .Path "/admin/dresses"}}aria-current="page"{{end}}>
+        <span class="studio__nav-ico" aria-hidden="true">&#9634;</span>Lookbook
+      </a>
+      <a href="/admin/dresses/new" {{if eq .Path "/admin/dresses/new"}}aria-current="page"{{end}}>
+        <span class="studio__nav-ico" aria-hidden="true">&plus;</span>Add a dress
+      </a>
+      <a href="/admin/settings" {{if eq .Path "/admin/settings"}}aria-current="page"{{end}}>
+        <span class="studio__nav-ico" aria-hidden="true">&#9788;</span>Settings
+      </a>
+      <p class="studio__nav-note">
+        Orders arrive on WhatsApp. Nothing is charged here &mdash; the shop only writes the message.
+      </p>
+    </nav>
+    {{end}}
+
+    <main id="main" class="studio__main">
+      {{if .Flashes}}
+      <div class="flashes" role="status">
+        {{range .Flashes}}<p class="flash flash--{{.Kind}}">{{.Text}}</p>{{end}}
+      </div>
+      {{end}}
+
+      {{if .Warnings}}
+      <details class="todo" open>
+        <summary><strong>{{len .Warnings}}</strong> thing{{if ne (len .Warnings) 1}}s{{end}} to finish setting up</summary>
+        <ul>{{range .Warnings}}<li>{{.}}</li>{{end}}</ul>
+      </details>
+      {{end}}
+
+      {{block "main" .}}{{end}}
+    </main>
+  </div>
+
+  <script nonce="{{.Nonce}}" src="/static/js/ajuma.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{{define "main"}}
+<section class="oops">
+  <div class="shell oops__inner">
+    <p class="oops__code" aria-hidden="true">{{.Status}}</p>
+    <h1 class="oops__title">{{.Heading}}</h1>
+    <p class="oops__msg">{{.Message}}</p>
+    <div class="hero__actions">
+      <a class="btn btn--ink" href="/#lookbook">Back to the lookbook</a>
+      {{if .Ordering}}
+      <a class="btn btn--wa" href="{{.ChatURL}}" rel="noopener noreferrer" target="_blank">
+        <span class="btn__wa" aria-hidden="true"></span>Ask on WhatsApp
+      </a>
+      {{end}}
+    </div>
+  </div>
+</section>
+{{end}}

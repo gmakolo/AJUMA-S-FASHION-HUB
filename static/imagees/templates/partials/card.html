@@ -1,0 +1,49 @@
+{{/*
+  card — one dress in the lookbook.
+  dict: D (Dress), Cur (currency symbol), Ordering (bool), Order (where the
+  button goes — View.OrderHref), Static (bool), optional Eager.
+*/}}
+{{define "card"}}
+{{- $d := .D -}}
+<article class="card{{if $d.SoldOut}} is-sold{{end}}">
+  <a class="card__body" href="{{$d.Path}}">
+    <div class="card__figure">
+      {{template "figure" (dict "Img" $d.Cover "Alt" $d.Name "Class" "frame--tall" "Eager" .Eager)}}
+      {{if $d.Featured}}<span class="badge badge--pick">House pick</span>{{end}}
+      {{if $d.SoldOut}}<span class="badge badge--sold">Sold out</span>{{end}}
+    </div>
+
+    <div class="card__rule" aria-hidden="true"></div>
+
+    <div class="card__head">
+      <h3 class="card__name">{{$d.Name}}</h3>
+      <p class="card__price">{{money .Cur $d.PriceMinor}}</p>
+    </div>
+
+    {{if or $d.Category $d.Sizes}}
+    <div class="card__meta">
+      {{- with $d.Category}}{{.}}{{end -}}
+      {{- if and $d.Category $d.Sizes}} &middot; {{end -}}
+      {{- if $d.Sizes}}{{join $d.Sizes " / "}}{{end -}}
+    </div>
+    {{end}}
+
+    {{with $d.Description}}<p class="card__desc">{{excerpt . 116}}</p>{{end}}
+  </a>
+
+  <div class="card__foot">
+    {{if and .Ordering $d.Available}}
+    {{/* Exported, this goes straight to WhatsApp rather than through a route
+         that is no longer there, so it opens away from the shop. */}}
+    <a class="btn btn--wa btn--sm" href="{{.Order}}"{{if .Static}} target="_blank" rel="noopener noreferrer"{{end}}>
+      <span class="btn__wa" aria-hidden="true"></span>Order on WhatsApp
+    </a>
+    {{else if $d.SoldOut}}
+    <a class="btn btn--quiet btn--sm" href="{{$d.Path}}">Ask for a remake</a>
+    {{else}}
+    <span class="card__closed">Ordering opens shortly</span>
+    {{end}}
+    <a class="card__more" href="{{$d.Path}}">Details<span aria-hidden="true"> &rarr;</span></a>
+  </div>
+</article>
+{{end}}
