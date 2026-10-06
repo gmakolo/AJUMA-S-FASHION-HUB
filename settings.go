@@ -44,16 +44,16 @@ Please confirm availability and delivery to my area. Thank you!`
 // DefaultSettings is what a fresh install starts with.
 func DefaultSettings() Settings {
 	return Settings{
-		BrandName: "Ajuma Fashion Hub",
-		Tagline:   "Dresses cut, sewn and finished by hand — one piece at a time.",
-		Story: "Ajuma Fashion Hub is a one-woman atelier. Every dress on this page was " +
-			"drafted, cut and sewn in our studio, in small runs or as a single piece. " +
-			"Choose what you love, send the message, and we take it from there.",
+		BrandName: "AJ FASHION AND DESIGN",
+		Tagline:   "Discover outfits made by talented local tailors.",
+		Story: "AJ FASHION AND DESIGN brings fashion makers and people who love original style together. " +
+			"Browse sewn outfits, discover new designs, and find inspiration from local talent. " +
+			"Each piece is shared by its maker so you can explore the craft behind the look.",
 		MessageTemplate: DefaultMessageTemplate,
 		CurrencySymbol:  "₦",
 		Location:        "Lagos, Nigeria",
 		DeliveryNote:    "Nationwide delivery. Made-to-measure takes 5–10 days.",
-		Announcement:    "Made to order · Nationwide delivery · Ask about your measurements",
+		Announcement:    "Made by local tailors · Discover original designs · Share your work",
 		UpdatedAt:       time.Now(),
 	}
 }
@@ -146,7 +146,7 @@ func NormalizeBaseURL(s string) (string, error) {
 	}
 	parsed, err := url.Parse(s)
 	if err != nil || parsed.Hostname() == "" {
-		return "", errors.New("that web address could not be read — it should look like https://ajumafashionhub.com")
+		return "", errors.New("that web address could not be read — it should look like https://ajfashionanddesign.com")
 	}
 	// Keep the scheme, the host and any sub-path, and drop the rest: a query
 	// or a fragment here would only break every link built on top of it.

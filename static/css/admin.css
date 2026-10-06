@@ -123,6 +123,7 @@ body.studio {
   margin-bottom: 1.6rem;
   border-bottom: 1px solid var(--rule);
 }
+.page__actions { display: flex; flex-wrap: wrap; gap: 0.55rem; }
 .page__title {
   margin-top: 0.3rem;
   font-family: var(--display);

@@ -1,0 +1,14 @@
+{{define "main"}}
+<section class="member-dashboard shell">
+  <header class="member-dashboard__head">
+    <div><p class="eyebrow">Your member profile</p><h1 class="section__title">Hello, {{.Member.Name}}</h1><p>{{.Member.Email}} · Member since {{.Member.CreatedAt.Format "January 2006"}} · Last active {{.Member.LastLogin.Format "Jan 2, 2006"}} · {{.Member.LoginCount}} sign-in{{if ne .Member.LoginCount 1}}s{{end}}</p></div>
+    <a class="btn btn--ink" href="/designs/new">Share a design</a>
+  </header>
+  <h2 class="member-dashboard__title">Your designs</h2>
+  {{if .Designs}}
+  <div class="grid">{{range $i,$d:=.Designs}}<div class="member-design-card">{{template "card" (dict "D" $d "Cur" $.Currency "Ordering" $.Ordering "Order" ($.OrderHref $d) "Static" $.Static "Eager" (lt $i 3))}}<form class="member-design-card__delete" method="post" action="/designs/{{$d.ID}}/delete" onsubmit="return confirm('Delete this design and its uploaded photos?')"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="btn btn--danger btn--sm" type="submit">Delete design</button></form></div>{{end}}</div>
+  {{else}}
+  <div class="member-empty"><p>You haven&rsquo;t shared a design yet.</p><a href="/designs/new">Post your first outfit</a></div>
+  {{end}}
+</section>
+{{end}}

@@ -7,8 +7,7 @@
   <title>{{.Title}}</title>
   <meta name="description" content="{{if .Description}}{{excerpt .Description 155}}{{else}}{{.Settings.Tagline}}{{end}}">
 
-  <meta name="theme-color" content="#fbf8f4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#14120f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#fff0f3">
   <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
 
   <meta property="og:site_name" content="{{.Settings.BrandName}}">
@@ -43,12 +42,15 @@
       </a>
 
       <nav class="nav" aria-label="Sections">
+        {{if .SignedIn}}
         <a href="/#lookbook">Lookbook</a>
-        <a href="/#atelier">The atelier</a>
-        {{if .Ordering}}
-        <a class="nav__cta" href="{{.ChatURL}}" rel="noopener noreferrer" target="_blank">
-          <span class="nav__cta-wa" aria-hidden="true"></span>Chat on WhatsApp
-        </a>
+        <a href="/#atelier">About us</a>
+        <a href="/designs/new">Share a design</a>
+        <a class="nav__login" href="/dashboard">{{.Member.Name}}</a>
+        <form class="nav__logout" method="post" action="/logout"><input type="hidden" name="csrf" value="{{.CSRF}}"><button type="submit">Sign out</button></form>
+        {{else if not .Static}}
+        <a class="nav__login" href="/register">Create account</a>
+        <a class="nav__login" href="/login">Sign in</a>
         {{end}}
       </nav>
     </div>
@@ -66,13 +68,10 @@
       </div>
 
       <div class="footer__col">
-        <h2>Orders</h2>
-        {{if .Ordering}}
-        <p><a href="{{.ChatURL}}" rel="noopener noreferrer" target="_blank">{{phone .Settings.WhatsApp}}</a></p>
-        {{else}}
-        <p class="footer__muted">Ordering opens once the shop&rsquo;s WhatsApp number is set.</p>
-        {{end}}
-        {{if .Settings.Email}}<p><a href="mailto:{{.Settings.Email}}">{{.Settings.Email}}</a></p>{{end}}
+        <h2>For makers</h2>
+        {{if .SignedIn}}<p><a href="/designs/new">Share a design</a></p><p><a href="/dashboard">Your profile</a></p>
+        {{else}}<p><a href="/register">Create an account</a></p><p><a href="/login">Sign in</a></p>{{end}}
+        {{if .Settings.Email}}<p><a href="mailto:{{.Settings.Email}}">Contact us</a></p>{{end}}
       </div>
 
       <div class="footer__col">
@@ -83,8 +82,8 @@
       </div>
 
       <div class="footer__col">
-        <h2>Delivery</h2>
-        <p class="footer__muted">{{if .Settings.DeliveryNote}}{{.Settings.DeliveryNote}}{{else}}Ask about delivery when you send your order.{{end}}</p>
+        <h2>About us</h2>
+        <p class="footer__muted">A community to discover sewn outfits and share local fashion talent.</p>
       </div>
     </div>
 

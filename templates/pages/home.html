@@ -4,21 +4,17 @@
 <section class="hero">
   <div class="shell hero__grid">
     <div class="hero__copy">
-      <p class="eyebrow">Ready to wear &middot; Made to measure</p>
+      <p class="eyebrow">Made by local tailors &middot; Shared with style</p>
       <h1 class="hero__title">
-        {{if .Settings.Tagline}}{{.Settings.Tagline}}{{else}}Dresses cut, sewn and finished by hand.{{end}}
+        {{if .Settings.Tagline}}{{.Settings.Tagline}}{{else}}Discover outfits made by talented local tailors.{{end}}
       </h1>
       <p class="hero__lede">
-        {{if .Settings.Story}}{{excerpt .Settings.Story 210}}{{else}}A small house making a short run of each piece &mdash; chosen fabric, considered fit, and one pair of hands from first cut to final press.{{end}}
+        {{if .Settings.Story}}{{excerpt .Settings.Story 210}}{{else}}AJ FASHION AND DESIGN brings fashion makers and people who love original style together. Browse sewn outfits, discover new designs, and find inspiration from local talent.{{end}}
       </p>
 
       <div class="hero__actions">
-        <a class="btn btn--ink" href="#lookbook">See the lookbook</a>
-        {{if .Ordering}}
-        <a class="btn btn--wa" href="{{.ChatURL}}" rel="noopener noreferrer" target="_blank">
-          <span class="btn__wa" aria-hidden="true"></span>Talk to us
-        </a>
-        {{end}}
+        <a class="btn btn--ink" href="#lookbook">Explore designs</a>
+        <a class="btn btn--ink" href="/designs/new">Share your design</a>
       </div>
 
       <dl class="hero__facts">
@@ -26,15 +22,13 @@
           <dt>In the lookbook</dt>
           <dd>{{.Total}} piece{{if ne .Total 1}}s{{end}}</dd>
         </div>
-        {{if .Settings.Location}}
         <div>
-          <dt>Atelier</dt>
-          <dd>{{.Settings.Location}}</dd>
+          <dt>Made by</dt>
+          <dd>Local tailors</dd>
         </div>
-        {{end}}
         <div>
-          <dt>Orders</dt>
-          <dd>By WhatsApp</dd>
+          <dt>Community</dt>
+          <dd>Tailors and fashion lovers</dd>
         </div>
       </dl>
     </div>
@@ -45,7 +39,6 @@
       <figcaption class="plate">
         <p class="plate__label">{{if .Hero.Featured}}House pick{{else}}Latest piece{{end}}</p>
         <p class="plate__name">{{.Hero.Name}}</p>
-        <p class="plate__price">{{money .Currency .Hero.PriceMinor}}</p>
         <a class="plate__link" href="{{.Hero.Path}}">Look closer<span aria-hidden="true"> &rarr;</span></a>
       </figcaption>
     </figure>
@@ -68,7 +61,7 @@
     <header class="section__head">
       <div>
         <p class="eyebrow">The lookbook</p>
-        <h2 class="section__title">Every piece, as it is made</h2>
+        <h2 class="section__title">Designs from our community</h2>
       </div>
 
       {{/* The search box asks the server a question. An exported site has no
@@ -116,27 +109,26 @@
   </div>
 </section>
 
-<!-- ═══════════════════ HOW ORDERING WORKS ═══════════════════ -->
+<!-- ═══════════════════ HOW THE COMMUNITY WORKS ═══════════════════ -->
 <section class="steps">
   <div class="shell">
-    <p class="eyebrow">Ordering</p>
-    <h2 class="section__title">Three taps, and it is in her hands</h2>
+    <p class="eyebrow">Our community</p>
+    <h2 class="section__title">A place to share and discover fashion</h2>
     <ol class="steps__list">
       <li>
         <span class="steps__no" aria-hidden="true">01</span>
-        <h3>Choose your piece</h3>
-        <p>Open a dress, pick a size and a quantity, and add a note if you want a change made.</p>
+        <h3>Create your account</h3>
+        <p>Sign in to see the gallery and keep your profile and designs together.</p>
       </li>
       <li>
         <span class="steps__no" aria-hidden="true">02</span>
-        <h3>Press order</h3>
-        <p>WhatsApp opens with the message already written &mdash; the dress, its reference, the price and
-           a link to the photograph. Nothing to type.</p>
+        <h3>Share your work</h3>
+        <p>Tailors can post photographs and details of outfits they have sewn and designs they have created.</p>
       </li>
       <li>
         <span class="steps__no" aria-hidden="true">03</span>
-        <h3>Send, and talk</h3>
-        <p>She confirms availability, measurements, payment and delivery with you directly in the chat.</p>
+        <h3>Explore the gallery</h3>
+        <p>Browse makers&rsquo; work, find inspiration and discover new styles from our community.</p>
       </li>
     </ol>
   </div>
@@ -153,8 +145,7 @@
       {{if .Settings.Story}}
         {{range paragraphs .Settings.Story}}<p>{{.}}</p>{{end}}
       {{else}}
-        <p>Every piece here is made in small numbers, in the shop&rsquo;s own workroom. Fabric is chosen by
-           hand, cut to your measurements, and finished the way it would be for the maker herself.</p>
+        <p>AJ FASHION AND DESIGN is a shared space for tailors and fashion lovers. Makers can show their sewn outfits and designs, while members can browse the gallery and keep their own work on their profile.</p>
       {{end}}
       <dl class="atelier__facts">
         {{if .Settings.Location}}<div><dt>Where</dt><dd>{{.Settings.Location}}</dd></div>{{end}}

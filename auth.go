@@ -95,9 +95,10 @@ func (c Credential) Verify(password string) bool {
 // session is one signed-in admin. The CSRF token is bound to the session so
 // a form posted from anywhere else fails even if the cookie rides along.
 type session struct {
-	csrf    string
-	flashes []Flash
-	expires time.Time
+	csrf     string
+	memberID string
+	flashes  []Flash
+	expires  time.Time
 }
 
 // Sessions holds signed-in admins in memory. Restarting the server signs the
@@ -113,12 +114,31 @@ func NewSessions() *Sessions { return &Sessions{items: map[string]*session{}} }
 
 // Start opens a session and returns its cookie token.
 func (s *Sessions) Start() (token, csrf string) {
+	return s.StartMember("")
+}
+
+func (s *Sessions) StartMember(memberID string) (token, csrf string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.sweepLocked()
 	token, csrf = randomToken(), randomToken()
-	s.items[token] = &session{csrf: csrf, expires: time.Now().Add(sessionTTL)}
+	s.items[token] = &session{csrf: csrf, memberID: memberID, expires: time.Now().Add(sessionTTL)}
 	return token, csrf
+}
+
+func (s *Sessions) Identity(token string) (csrf, memberID string, ok bool) {
+	if token == "" {
+		return "", "", false
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, ok := s.items[token]
+	if !ok || time.Now().After(item.expires) {
+		delete(s.items, token)
+		return "", "", false
+	}
+	item.expires = time.Now().Add(sessionTTL)
+	return item.csrf, item.memberID, true
 }
 
 // Lookup returns the CSRF token for a live session, extending its life.
@@ -145,6 +165,16 @@ func (s *Sessions) End(token string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.items, token)
+}
+
+func (s *Sessions) EndMember(memberID string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for token, item := range s.items {
+		if item.memberID == memberID {
+			delete(s.items, token)
+		}
+	}
 }
 
 func (s *Sessions) sweepLocked() {

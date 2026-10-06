@@ -1,0 +1,19 @@
+{{define "main"}}
+<section class="member-gate shell">
+  <div class="member-card">
+    <p class="eyebrow">Welcome back</p>
+    <h1 class="section__title">Sign in to AJ FASHION AND DESIGN</h1>
+    <p class="member-card__intro">Discover outfits sewn by local tailors, share your own work, and keep your fashion profile in one place.</p>
+    {{if .Message}}<p class="flash flash--ok" role="status">{{.Message}}</p>{{end}}
+    {{if .Error}}<p class="flash flash--error" role="alert">{{.Error}}</p>{{end}}
+    <form class="member-form" method="post" action="/login">
+      <input type="hidden" name="next" value="{{.Next}}">
+      <label class="field"><span class="field__label">Email address</span><input type="email" name="email" value="{{.Email}}" autocomplete="email" required></label>
+      <label class="field"><span class="field__label">Password</span><input type="password" name="password" autocomplete="current-password" required></label>
+      <button class="btn btn--ink btn--full" type="submit">Sign in</button>
+    </form>
+    <p class="member-card__foot">New here? <a href="/register">Create an account</a></p>
+    <p class="member-card__foot"><a href="/forgot-password">Forgot your password?</a></p>
+  </div>
+</section>
+{{end}}

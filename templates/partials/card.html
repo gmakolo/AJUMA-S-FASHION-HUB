@@ -17,8 +17,9 @@
 
     <div class="card__head">
       <h3 class="card__name">{{$d.Name}}</h3>
-      <p class="card__price">{{money .Cur $d.PriceMinor}}</p>
     </div>
+
+    {{with $d.OwnerName}}<p class="card__maker">Made by {{.}}</p>{{end}}
 
     {{if or $d.Category $d.Sizes}}
     <div class="card__meta">
@@ -32,18 +33,7 @@
   </a>
 
   <div class="card__foot">
-    {{if and .Ordering $d.Available}}
-    {{/* Exported, this goes straight to WhatsApp rather than through a route
-         that is no longer there, so it opens away from the shop. */}}
-    <a class="btn btn--wa btn--sm" href="{{.Order}}"{{if .Static}} target="_blank" rel="noopener noreferrer"{{end}}>
-      <span class="btn__wa" aria-hidden="true"></span>Order on WhatsApp
-    </a>
-    {{else if $d.SoldOut}}
-    <a class="btn btn--quiet btn--sm" href="{{$d.Path}}">Ask for a remake</a>
-    {{else}}
-    <span class="card__closed">Ordering opens shortly</span>
-    {{end}}
-    <a class="card__more" href="{{$d.Path}}">Details<span aria-hidden="true"> &rarr;</span></a>
+    <a class="card__more" href="{{$d.Path}}">View design<span aria-hidden="true"> &rarr;</span></a>
   </div>
 </article>
 {{end}}

@@ -26,6 +26,9 @@ func (h homeView) Filtering() bool { return h.Category != "" || h.Query != "" }
 
 func (a *App) handleHome(w http.ResponseWriter, r *http.Request) {
 	all := a.store.Dresses()
+	if len(all) == 0 {
+		all = sampleDresses
+	}
 	category := trimTo(oneLine(r.URL.Query().Get("c")), 40)
 	query := trimTo(oneLine(r.URL.Query().Get("q")), 80)
 
@@ -49,7 +52,6 @@ func (a *App) handleHome(w http.ResponseWriter, r *http.Request) {
 type dressView struct {
 	View
 	Dress     Dress
-	Price     string
 	OrderURL  string
 	Preview   string
 	Related   []Dress
@@ -81,6 +83,10 @@ func (a *App) handleDress(w http.ResponseWriter, r *http.Request) {
 			"It may have been renamed or taken down. The lookbook has everything that is currently available.")
 		return
 	}
+	d, err := a.store.RecordView(d.ID, a.memberFor(r).ID)
+	if err != nil {
+		slog.Error("record design view", "error", err)
+	}
 	set := a.store.Settings()
 	v := a.newView(r, d.Name, d.Description)
 
@@ -89,13 +95,37 @@ func (a *App) handleDress(w http.ResponseWriter, r *http.Request) {
 	a.view.Render(w, http.StatusOK, "dress.html", dressView{
 		View:      v,
 		Dress:     d,
-		Price:     FormatMoney(set.Currency(), d.PriceMinor),
 		OrderURL:  OrderURL(set, d, OrderRequest{}),
 		Preview:   BuildOrderMessage(set, d, OrderRequest{}),
 		Related:   relatedDresses(a.store.Dresses(), d, 3),
 		MaxQty:    10,
 		OrderData: encoded,
 	})
+}
+
+func (a *App) handleDressReaction(w http.ResponseWriter, r *http.Request) {
+	noStore(w)
+	r.Body = http.MaxBytesReader(w, r.Body, 8<<10)
+	if err := r.ParseForm(); err != nil || !sameOriginPost(r) {
+		http.Error(w, "Request blocked", http.StatusForbidden)
+		return
+	}
+	_, csrf, ok := a.currentSession(r)
+	if !ok || r.PostFormValue("csrf") != csrf {
+		http.Error(w, "Request blocked", http.StatusForbidden)
+		return
+	}
+	d, found := a.store.BySlug(r.PathValue("slug"))
+	if !found {
+		a.showError(w, r, http.StatusNotFound, "That design is not here", "It may have been taken down.")
+		return
+	}
+	if _, err := a.store.ToggleReaction(d.ID, a.memberFor(r).ID); err != nil {
+		slog.Error("save design reaction", "error", err)
+		a.showError(w, r, http.StatusInternalServerError, "Your reaction could not be saved", "Please try again.")
+		return
+	}
+	http.Redirect(w, r, d.Path(), http.StatusSeeOther)
 }
 
 // handleOrder is the hand-off to WhatsApp. A GET is the plain "order" button

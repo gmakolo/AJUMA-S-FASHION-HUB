@@ -1,0 +1,17 @@
+{{define "main"}}
+<section class="member-gate shell">
+  <div class="member-card">
+    <p class="eyebrow">Join the community</p>
+    <h1 class="section__title">Create your account</h1>
+    <p class="member-card__intro">Sign up to browse the gallery and post your sewn outfits and fashion designs.</p>
+    {{if .Error}}<p class="flash flash--error" role="alert">{{.Error}}</p>{{end}}
+    <form class="member-form" method="post" action="/register">
+      <label class="field"><span class="field__label">Your name</span><input name="name" value="{{.Name}}" autocomplete="name" maxlength="60" required></label>
+      <label class="field"><span class="field__label">Email address</span><input type="email" name="email" value="{{.Email}}" autocomplete="email" required></label>
+      <label class="field"><span class="field__label">Password</span><input type="password" name="password" autocomplete="new-password" minlength="8" required><small>Use at least 8 characters.</small></label>
+      <button class="btn btn--ink btn--full" type="submit">Create account</button>
+    </form>
+    <p class="member-card__foot">Already a member? <a href="/login">Sign in</a></p>
+  </div>
+</section>
+{{end}}

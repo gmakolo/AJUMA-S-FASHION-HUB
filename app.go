@@ -8,13 +8,17 @@ import (
 
 // App wires the pieces together and hangs the handlers off them.
 type App struct {
-	store      *Store
-	media      *MediaStore
-	view       *Renderer
-	sessions   *Sessions
-	throttle   *Throttle
-	credential Credential
-	trustProxy bool
+	store       *Store
+	members     *MemberStore
+	mailer      *SMTPMailer
+	resetLimit  *Throttle
+	verifyLimit *Throttle
+	media       *MediaStore
+	view        *Renderer
+	sessions    *Sessions
+	throttle    *Throttle
+	credential  Credential
+	trustProxy  bool
 
 	// static is set while the shop is being exported to flat files. Pages then
 	// render the handful of things a CDN cannot do for them — see export.go.
@@ -35,6 +39,9 @@ type View struct {
 	ChatURL     string
 	Categories  []string
 	Static      bool
+	Member      Member
+	SignedIn    bool
+	CSRF        string
 }
 
 // AdminView adds the fields only the admin chrome uses.
@@ -57,6 +64,8 @@ func (a *App) newView(r *http.Request, title, description string) View {
 	if description == "" {
 		description = set.Tagline
 	}
+	_, csrf, sessionOK := a.currentSession(r)
+	member := a.memberFor(r)
 	return View{
 		Title:       title,
 		Description: Excerpt(description, 180),
@@ -68,7 +77,27 @@ func (a *App) newView(r *http.Request, title, description string) View {
 		ChatURL:     ChatURL(set),
 		Categories:  a.store.Categories(),
 		Static:      a.static,
+		Member:      member,
+		SignedIn:    member.ID != "",
+		CSRF: func() string {
+			if sessionOK {
+				return csrf
+			}
+			return ""
+		}(),
 	}
+}
+
+func (a *App) memberFor(r *http.Request) Member {
+	if a.members == nil {
+		return Member{}
+	}
+	_, id, ok := a.sessions.Identity(a.sessionToken(r))
+	if !ok || id == "" {
+		return Member{}
+	}
+	m, _ := a.members.ByID(id)
+	return m
 }
 
 // OrderHref is where a lookbook card's order button points. On the live shop

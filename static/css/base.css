@@ -5,29 +5,29 @@
    ========================================================================== */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   /* Paper and ink */
-  --paper:    #fbf8f4;
-  --paper-2:  #f4efe6;
-  --paper-3:  #eae0d2;
-  --ink:      #191512;
-  --ink-soft: #5b5249;
-  --ink-faint:#8c8377;
+  --paper:    #fff0f3;
+  --paper-2:  #ffe0e7;
+  --paper-3:  #f6c4d1;
+  --ink:      #4b1c2d;
+  --ink-soft: #714153;
+  --ink-faint:#92707d;
 
   /* House colours */
-  --accent:     #a8462a;   /* terracotta — headings, links, marks */
-  --accent-deep:#7f3220;
-  --gold:       #b1904e;   /* hairlines, small flags */
+  --accent:     #c43b5d;
+  --accent-deep:#992744;
+  --gold:       #a97948;
   --wa:         #128c7e;   /* WhatsApp green */
   --wa-deep:    #0d6d62;
   --danger:     #9c2f24;
 
   /* Lines and lift */
-  --rule:      rgba(25, 21, 18, 0.14);
-  --rule-soft: rgba(25, 21, 18, 0.07);
-  --lift:      0 1px 1px rgba(25, 21, 18, 0.04), 0 16px 34px -26px rgba(25, 21, 18, 0.45);
-  --lift-high: 0 2px 4px rgba(25, 21, 18, 0.06), 0 28px 56px -30px rgba(25, 21, 18, 0.5);
+  --rule:      rgba(75, 28, 45, 0.16);
+  --rule-soft: rgba(75, 28, 45, 0.08);
+  --lift:      0 1px 1px rgba(75, 28, 45, 0.04), 0 16px 34px -26px rgba(75, 28, 45, 0.38);
+  --lift-high: 0 2px 4px rgba(75, 28, 45, 0.06), 0 28px 56px -30px rgba(75, 28, 45, 0.42);
 
   /* Type */
   --display: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Palatino,
@@ -38,27 +38,6 @@
 
   --shell: 74rem;
   --radius: 3px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper:    #14120f;
-    --paper-2:  #1c1916;
-    --paper-3:  #2a251f;
-    --ink:      #f3ece2;
-    --ink-soft: #b9afa2;
-    --ink-faint:#8b8074;
-    --accent:     #e08a63;
-    --accent-deep:#f0a583;
-    --gold:       #c9a765;
-    --wa:         #25d366;
-    --wa-deep:    #1faa54;
-    --danger:     #e4776a;
-    --rule:      rgba(243, 236, 226, 0.16);
-    --rule-soft: rgba(243, 236, 226, 0.08);
-    --lift:      0 1px 1px rgba(0, 0, 0, 0.4), 0 18px 40px -28px rgba(0, 0, 0, 0.9);
-    --lift-high: 0 2px 6px rgba(0, 0, 0, 0.5), 0 30px 60px -30px rgba(0, 0, 0, 1);
-  }
 }
 
 /* ---------- Reset ---------- */

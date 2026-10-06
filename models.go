@@ -20,6 +20,8 @@ import (
 // (kobo) so no price ever passes through a float.
 type Dress struct {
 	ID          string    `json:"id"`
+	OwnerID     string    `json:"owner_id,omitempty"`
+	OwnerName   string    `json:"owner_name,omitempty"`
 	Ref         string    `json:"ref"`
 	Name        string    `json:"name"`
 	Slug        string    `json:"slug"`
@@ -29,6 +31,8 @@ type Dress struct {
 	PriceMinor  int64     `json:"price_minor"`
 	Sizes       []string  `json:"sizes,omitempty"`
 	Images      []Image   `json:"images,omitempty"`
+	Viewers     []string  `json:"viewers,omitempty"`
+	Reactions   []string  `json:"reactions,omitempty"`
 	Featured    bool      `json:"featured"`
 	SoldOut     bool      `json:"sold_out"`
 	Position    int       `json:"position"`
@@ -64,6 +68,17 @@ func (d Dress) Extras() []Image {
 }
 
 func (d Dress) HasImage() bool { return len(d.Images) > 0 }
+
+func (d Dress) ViewCount() int     { return len(d.Viewers) }
+func (d Dress) ReactionCount() int { return len(d.Reactions) }
+func (d Dress) ReactedBy(memberID string) bool {
+	for _, id := range d.Reactions {
+		if id == memberID {
+			return true
+		}
+	}
+	return false
+}
 
 // Available reports whether the dress can still be ordered.
 func (d Dress) Available() bool { return !d.SoldOut }

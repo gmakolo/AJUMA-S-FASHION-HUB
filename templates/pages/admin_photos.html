@@ -1,0 +1,54 @@
+{{define "main"}}
+<header class="page__head">
+  <div>
+    <p class="eyebrow">The shop</p>
+    <h1 class="page__title">Upload image</h1>
+  </div>
+  <a class="btn btn--quiet" href="/admin/dresses">Back to lookbook</a>
+</header>
+
+<p class="page__intro">Choose a dress, then add photographs from your device. The first photo becomes the cover when the dress has no photos yet.</p>
+
+{{if .Errors}}
+<div class="flash flash--error" role="alert">
+  <p><strong>Nothing was uploaded.</strong></p>
+  <ul>{{range .Errors}}<li>{{.}}</li>{{end}}</ul>
+</div>
+{{end}}
+
+{{if .Dresses}}
+<form class="sheet" method="post" enctype="multipart/form-data" action="/admin/photos">
+  <input type="hidden" name="csrf" value="{{.CSRF}}">
+  <section class="sheet__block">
+    <div class="sheet__aside">
+      <h2>Choose a dress</h2>
+      <p>Each dress can have up to five photographs.</p>
+    </div>
+    <div class="sheet__fields">
+      <label class="field">
+        <span class="field__label">Dress</span>
+        <select name="dress" required>
+          <option value="">Choose a dress</option>
+          {{range .Dresses}}
+          <option value="{{.ID}}" {{if eq $.Selected .ID}}selected{{end}}>{{.Name}} ({{len .Images}}/5 photos)</option>
+          {{end}}
+        </select>
+      </label>
+      <label class="drop">
+        <input type="file" name="photos" accept="image/jpeg,image/png,image/gif" multiple required>
+        <span class="drop__face">
+          <span class="drop__ico" aria-hidden="true">&#43;</span>
+          <span class="drop__text"><strong>Choose photographs</strong><br>JPEG, PNG or GIF &middot; up to 8 MB each</span>
+        </span>
+      </label>
+      <p class="field__hint">Photos are resized for the web. You can reorder the cover or remove photos from the dress edit page.</p>
+    </div>
+  </section>
+  <div class="sheet__save">
+    <button class="btn btn--ink btn--lg" type="submit">Upload image</button>
+  </div>
+</form>
+{{else}}
+<p class="empty">Add a dress to the <a href="/admin/dresses/new">lookbook</a> before uploading photographs.</p>
+{{end}}
+{{end}}

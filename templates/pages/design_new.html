@@ -1,0 +1,17 @@
+{{define "main"}}
+<section class="member-gate shell member-gate--wide">
+  <div class="member-card member-card--wide">
+    <p class="eyebrow">Made by you</p><h1 class="section__title">Share a design</h1>
+    <p class="member-card__intro">Upload a photo of your outfit, then add a short description underneath.</p>
+    {{range .Errors}}<p class="flash flash--error" role="alert">{{.}}</p>{{end}}
+    <form class="member-form" method="post" action="/designs/new" enctype="multipart/form-data">
+      <input type="hidden" name="csrf" value="{{.CSRF}}">
+      <input type="hidden" name="name" value="Design by {{.Member.Name}}">
+      <label class="field member-upload"><span class="field__label">Outfit photos</span><input type="file" name="photos" accept="image/jpeg,image/png,image/gif,image/webp" multiple required><small>Select several photos together (up to {{.MaxImages}} photos, 8 MB each).</small></label>
+      <label class="field"><span class="field__label">Description</span><textarea name="description" rows="4" maxlength="1500" placeholder="Describe the outfit or design…" required>{{.Dress.Description}}</textarea></label>
+      <button class="btn btn--ink" type="submit">Upload design</button>
+      <a class="btn btn--ghost" href="/dashboard">Cancel</a>
+    </form>
+  </div>
+</section>
+{{end}}

@@ -1,7 +1,6 @@
 {{define "head"}}
   {{if .Dress.HasImage}}<meta property="og:image" content="{{.Settings.AbsURL .Dress.Cover.Src}}">{{end}}
   <meta property="og:type" content="product">
-  <meta property="product:price:amount" content="{{amount .Dress.PriceMinor}}">
   {{if .Settings.BaseURL}}<link rel="canonical" href="{{.Settings.AbsURL .Dress.Path}}">{{end}}
 {{end}}
 
@@ -59,7 +58,15 @@
         {{with $d.Category}}{{.}} &middot; {{end}}Ref {{$d.Ref}}
       </p>
       <h1 class="piece__name">{{$d.Name}}</h1>
-      <p class="piece__price">{{.Price}}</p>
+      {{with $d.OwnerName}}<p class="card__maker">Made by {{.}}</p>{{end}}
+
+      <div class="piece__community" aria-label="Design activity">
+        <span>{{$d.ViewCount}} {{if eq $d.ViewCount 1}}person has{{else}}people have{{end}} seen this design</span>
+        <form method="post" action="/dress/{{$d.Slug}}/react">
+          <input type="hidden" name="csrf" value="{{$.CSRF}}">
+          <button class="btn btn--quiet btn--sm" type="submit" aria-pressed="{{$d.ReactedBy $.Member.ID}}">{{if $d.ReactedBy $.Member.ID}}Reacted{{else}}React{{end}} · {{$d.ReactionCount}}</button>
+        </form>
+      </div>
 
       {{if $d.SoldOut}}
       <p class="notice notice--sold">
@@ -80,14 +87,7 @@
       </div>
       {{end}}
 
-      {{/* Two shells, one body. On the live shop the panel is a form the
-           server answers; exported to a static host it is a plain block whose
-           button is a link straight to WhatsApp. */}}
-      {{if .Static}}
-      <div class="order" data-order="{{.OrderData}}">{{template "orderBody" .}}</div>
-      {{else}}
-      <form class="order" method="post" action="{{$d.Path}}/order" data-order="{{.OrderData}}">{{template "orderBody" .}}</form>
-      {{end}}
+      {{with $d.OwnerName}}<p class="notice">Shared by {{.}} in the community gallery.</p>{{end}}
     </div>
   </div>
 </article>
@@ -111,70 +111,4 @@
 </section>
 {{end}}
 
-{{end}}
-
-{{/* orderBody is the inside of the order panel. It is kept apart from the two
-     shells above so that neither has to repeat it, and so the difference
-     between the live shop and an exported one stays down to three lines. */}}
-{{define "orderBody"}}
-{{- $d := .Dress -}}
-        <h2 class="order__title">Order this piece</h2>
-
-        {{/* Exported, these choices reach WhatsApp only if the script is there
-             to fold them into the link, so they wait for it rather than sit on
-             the page promising something they cannot do. */}}
-        <div class="order__choices" data-choices{{if .Static}} hidden{{end}}>
-          {{if $d.Sizes}}
-          <fieldset class="order__field">
-            <legend class="order__label">Size</legend>
-            <div class="pills">
-              {{range $i, $s := $d.Sizes}}
-              <label class="pill">
-                <input type="radio" name="size" value="{{$s}}" {{if eq $i 0}}checked{{end}}>
-                <span>{{$s}}</span>
-              </label>
-              {{end}}
-            </div>
-          </fieldset>
-          {{end}}
-
-          <label class="order__field order__field--narrow">
-            <span class="order__label">Quantity</span>
-            <select name="qty">
-              {{range seq .MaxQty}}<option value="{{.}}">{{.}}</option>{{end}}
-            </select>
-          </label>
-
-          <label class="order__field">
-            <span class="order__label">Anything to add? <em>optional</em></span>
-            <textarea name="notes" rows="2" maxlength="280"
-                      placeholder="Colour, sleeve length, the date you need it&hellip;"></textarea>
-          </label>
-        </div>
-
-        <section class="wa" aria-labelledby="wa-head">
-          <p class="wa__head" id="wa-head">
-            <span class="wa__dot" aria-hidden="true"></span>The message you will send
-          </p>
-          <pre class="wa__bubble" id="wa-preview">{{.Preview}}</pre>
-          <p class="wa__foot">
-            WhatsApp opens with this already written &mdash; you only press send. Nothing is
-            charged here; payment and delivery are settled with the maker in the chat.
-          </p>
-        </section>
-
-        {{if .Ordering}}
-          {{if .Static}}
-          <a class="btn btn--wa btn--lg btn--full" href="{{.OrderURL}}"
-             target="_blank" rel="noopener noreferrer" data-order-link>
-            <span class="btn__wa" aria-hidden="true"></span>Order on WhatsApp
-          </a>
-          {{else}}
-          <button class="btn btn--wa btn--lg btn--full" type="submit">
-            <span class="btn__wa" aria-hidden="true"></span>Order on WhatsApp
-          </button>
-          {{end}}
-        {{else}}
-        <p class="notice">Ordering is switched off until the shop adds its WhatsApp number.</p>
-        {{end}}
 {{end}}

@@ -140,6 +140,18 @@ func (s *Store) Dresses() []Dress {
 	return out
 }
 
+func (s *Store) DressesByOwner(ownerID string) []Dress {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var out []Dress
+	for _, d := range s.doc.Dresses {
+		if d.OwnerID == ownerID {
+			out = append(out, d)
+		}
+	}
+	return out
+}
+
 // Categories lists the distinct categories in use, alphabetically.
 func (s *Store) Categories() []string {
 	s.mu.RLock()
@@ -166,6 +178,63 @@ func (s *Store) BySlug(slug string) (Dress, bool) {
 		}
 	}
 	return Dress{}, false
+}
+
+// RecordView counts one view per signed-in member for each design.
+func (s *Store) RecordView(id, memberID string) (Dress, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i := range s.doc.Dresses {
+		d := &s.doc.Dresses[i]
+		if d.ID != id {
+			continue
+		}
+		for _, viewer := range d.Viewers {
+			if viewer == memberID {
+				return *d, nil
+			}
+		}
+		before := *d
+		d.Viewers = append(d.Viewers, memberID)
+		if err := s.persist(); err != nil {
+			*d = before
+			return Dress{}, err
+		}
+		return *d, nil
+	}
+	return Dress{}, ErrNotFound
+}
+
+// ToggleReaction records or removes one reaction per signed-in member.
+func (s *Store) ToggleReaction(id, memberID string) (Dress, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i := range s.doc.Dresses {
+		d := &s.doc.Dresses[i]
+		if d.ID != id {
+			continue
+		}
+		before := *d
+		before.Viewers = append([]string(nil), d.Viewers...)
+		before.Reactions = append([]string(nil), d.Reactions...)
+		for j, reaction := range d.Reactions {
+			if reaction == memberID {
+				d.Reactions = append(d.Reactions[:j], d.Reactions[j+1:]...)
+				if err := s.persist(); err != nil {
+					*d = before
+					return Dress{}, err
+				}
+				return *d, nil
+			}
+		}
+		d.Reactions = append(d.Reactions, memberID)
+		if err := s.persist(); err != nil {
+			*d = before
+			return Dress{}, err
+		}
+		return *d, nil
+	}
+	return Dress{}, ErrNotFound
 }
 
 // ByID finds a dress by its identifier.
@@ -237,6 +306,24 @@ func (s *Store) Delete(id string) (Dress, error) {
 	defer s.mu.Unlock()
 	for i, d := range s.doc.Dresses {
 		if d.ID != id {
+			continue
+		}
+		s.doc.Dresses = append(s.doc.Dresses[:i], s.doc.Dresses[i+1:]...)
+		s.sortLocked()
+		if err := s.persist(); err != nil {
+			return Dress{}, err
+		}
+		return d, nil
+	}
+	return Dress{}, ErrNotFound
+}
+
+// DeleteOwned removes a member's dress only when the signed-in member owns it.
+func (s *Store) DeleteOwned(id, ownerID string) (Dress, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i, d := range s.doc.Dresses {
+		if d.ID != id || d.OwnerID != ownerID {
 			continue
 		}
 		s.doc.Dresses = append(s.doc.Dresses[:i], s.doc.Dresses[i+1:]...)

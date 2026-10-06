@@ -113,11 +113,13 @@ func readDressForm(r *http.Request, d Dress) (Dress, string, []string) {
 	d.SoldOut = r.PostFormValue("sold_out") != ""
 
 	priceText := strings.TrimSpace(r.PostFormValue("price"))
-	price, err := ParsePrice(priceText)
-	if err != nil {
-		errs = append(errs, sentence(err.Error()))
-	} else {
-		d.PriceMinor = price
+	if priceText != "" {
+		price, err := ParsePrice(priceText)
+		if err != nil {
+			errs = append(errs, sentence(err.Error()))
+		} else {
+			d.PriceMinor = price
+		}
 	}
 	return d, priceText, errs
 }
